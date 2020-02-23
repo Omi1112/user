@@ -1,6 +1,7 @@
 version: '3'
 services:
   api:
+    tty: true
     links:
       - mysql
     build:
