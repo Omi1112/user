@@ -4,13 +4,14 @@ services:
     tty: true
     links:
       - mysql
-    build:
-      context: .
-      dockerfile: ./docker/api/Dockerfile
+    image: zemisemi/gin-template
+    # build:
+    #   context: .
+    #   dockerfile: ./docker/api/Dockerfile
     ports:
       - "8080:8080"
     volumes:
-      - ./src/api:/go/src/api
+      - .:/go/src
   mysql:
     build: ./docker/db
     image: mysql:8.0

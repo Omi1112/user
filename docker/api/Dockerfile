@@ -1,8 +1,6 @@
 FROM golang:latest
 
-COPY src/api /go/src/api
-
-WORKDIR /go/src/api/
+WORKDIR /go/src/
 
 RUN apt-get update \
   && apt-get install
