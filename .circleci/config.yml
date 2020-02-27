@@ -30,6 +30,6 @@ jobs:
       # - run: go get -v -t -d ./...
       # - run: go test -v ./...
       - run:
-        name: db を待機
+        name: db build wait
         command: dockerize -wait tcp://localhost:3306 -timeout 1m
       - run: make
