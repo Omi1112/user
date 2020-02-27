@@ -2,7 +2,7 @@ package main
 
 import (
 	"local.packages/db"
-	"local.packages/server"
+	"github.com/SeijiOmi/gin-tamplate/server"
 )
 
 func main() {

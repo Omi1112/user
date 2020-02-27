@@ -1,10 +1,10 @@
-module main
+module github.com/SeijiOmi/gin-tamplate
 
 go 1.13
 
 replace local.packages/db => ./db
 
-replace local.packages/server => ./server
+// replace local.packages/server => ./server
 
 replace local.packages/controller => ./controller
 
@@ -23,6 +23,6 @@ require (
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	local.packages/db v0.0.0-00010101000000-000000000000
 	local.packages/entity v0.0.0-00010101000000-000000000000 // indirect
-	local.packages/server v0.0.0-00010101000000-000000000000
+	// local.packages/server v0.0.0-00010101000000-000000000000
 	local.packages/service v0.0.0-00010101000000-000000000000 // indirect
 )

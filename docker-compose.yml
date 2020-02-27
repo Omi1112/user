@@ -5,6 +5,7 @@ services:
     links:
       - mysql
     image: zemisemi/gin-template
+    working_dir: /go/src/github.com/SeijiOmi/gin-tamplate
     entrypoint:
       - dockerize
       - -timeout
@@ -18,7 +19,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - .:/go/src
+      - .:/go/src/github.com/SeijiOmi/gin-tamplate
   mysql:
     build: ./docker/db
     image: mysql:8.0
