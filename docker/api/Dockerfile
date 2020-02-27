@@ -11,4 +11,9 @@ RUN go get -u github.com/gin-gonic/gin \
   && go get github.com/codegangsta/gin \
   && apt-get install -y mariadb-client
 
-CMD ["sh", "./start_app.sh"]
+ENV DOCKERIZE_VERSION v0.6.0
+
+RUN apt-get update && apt-get install -y wget \
+  && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+  && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+  && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz

@@ -5,6 +5,13 @@ services:
     links:
       - mysql
     image: zemisemi/gin-template
+    entrypoint:
+      - dockerize
+      - -timeout
+      - 60s
+      - -wait
+      - tcp://mysql:3306
+    command: gin -i --all run main.go
     # build:
     #   context: .
     #   dockerfile: ./docker/api/Dockerfile

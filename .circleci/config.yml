@@ -29,4 +29,7 @@ jobs:
       # specify any bash command here prefixed with `run: `
       # - run: go get -v -t -d ./...
       # - run: go test -v ./...
+      - run:
+        name: db を待機
+        command: dockerize -wait tcp://localhost:3306 -timeout 1m
       - run: make
