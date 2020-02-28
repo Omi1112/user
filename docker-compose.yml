@@ -12,7 +12,7 @@ services:
       - 60s
       - -wait
       - tcp://mysql:3306
-    command: gin -i --all run main.go
+    # command: gin -i --all run main.go
     # build:
     #   context: .
     #   dockerfile: ./docker/api/Dockerfile

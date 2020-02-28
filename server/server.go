@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/gin-gonic/gin"
 
-	"local.packages/controller"
+	"github.com/SeijiOmi/gin-tamplate/controller"
 )
 
 // Init is initialize server

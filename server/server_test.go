@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/stretchr/testify/assert"
-	"local.packages/db"
+	"github.com/SeijiOmi/gin-tamplate/db"
 )
 
 /*

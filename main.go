@@ -1,7 +1,7 @@
 package main
 
 import (
-	"local.packages/db"
+	"github.com/SeijiOmi/gin-tamplate/db"
 	"github.com/SeijiOmi/gin-tamplate/server"
 )
 
