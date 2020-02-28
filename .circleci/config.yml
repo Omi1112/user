@@ -32,7 +32,7 @@ jobs:
       # - run:
       #   name: db build wait
       #   command: dockerize -wait tcp://localhost:3306 -timeout 1m
-      - run: dockerize -wait tcp://localhost:3306 -timeout 1m
+      - run: dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
       # - run:
       #   name: db build wait
       #   command: dockerize -wait tcp://localhost:3306 -timeout 1m
