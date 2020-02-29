@@ -20,6 +20,11 @@ services:
       - "8080:8080"
     volumes:
       - .:/go/src/github.com/SeijiOmi/gin-tamplate
+    environment:
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_NAME: sample
+      DB_ADDRESS: mysql:3306
   mysql:
     build: ./docker/db
     image: mysql:8.0

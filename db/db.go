@@ -1,6 +1,9 @@
 package db
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/SeijiOmi/gin-tamplate/entity"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -14,12 +17,12 @@ var (
 // Init is initialize db from main function
 func Init() {
 	DBMS := "mysql"
-	USER := "root"
-	PASS := "password"
-	PROTOCOL := "tcp(mysql:3306)"
-	// PROTOCOL := "tcp(127.0.0.1:3306)"
-	DBNAME := "sample"
-	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?parseTime=true"
+	USER := os.Getenv("DB_USER")
+	PASS := os.Getenv("DB_PASSWORD")
+	PROTOCOL := "tcp(" + os.Getenv("DB_ADDRESS") + ")"
+	DB_NAME := os.Getenv("DB_NAME")
+	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DB_NAME + "?parseTime=true"
+	fmt.Println(CONNECT)
 	_db, err := gorm.Open(DBMS, CONNECT)
 	db = _db
 	if err != nil {
