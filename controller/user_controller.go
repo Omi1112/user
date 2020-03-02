@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"local.packages/service"
+	"github.com/SeijiOmi/gin-tamplate/service"
 )
 
 // Controller is user controlller
