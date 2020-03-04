@@ -85,9 +85,8 @@ func Delete(c *gin.Context) {
 // Login action: POST /users/login
 func Login(c *gin.Context) {
 	var inputUser entity.User
-	if err := c.BindJSON(&inputUser); err != nil {
-		c.AbortWithStatus(400)
-		fmt.Println(err)
+	if err := bindJSON(c, &inputUser); err != nil {
+		return
 	}
 
 	var b service.Behavior
@@ -104,8 +103,6 @@ func Login(c *gin.Context) {
 func Auth(c *gin.Context) {
 	var inputUser entity.User
 	if err := bindJSON(c, &inputUser); err != nil {
-		c.AbortWithStatus(400)
-		fmt.Println(err)
 		return
 	}
 
@@ -122,7 +119,7 @@ func Auth(c *gin.Context) {
 func bindJSON(c *gin.Context, data interface{}) error {
 	if err := c.BindJSON(data); err != nil {
 		c.AbortWithStatus(400)
-		fmt.Println("JSON bind err")
+		fmt.Println("bind JSON err")
 		fmt.Println(err)
 		return err
 	}
