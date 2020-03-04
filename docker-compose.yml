@@ -6,12 +6,12 @@ services:
       - mysql
     image: zemisemi/gin-template
     working_dir: /go/src/github.com/SeijiOmi/gin-tamplate
-    entrypoint:
-      - dockerize
-      - -timeout
-      - 60s
-      - -wait
-      - tcp://mysql:3306
+    # entrypoint:
+    #   - dockerize
+    #   - -timeout
+    #   - 60s
+    #   - -wait
+    #   - tcp://mysql:3306
     # command: gin -i --all run main.go
     # build:
     #   context: .

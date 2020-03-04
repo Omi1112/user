@@ -1,9 +1,8 @@
 package server
 
 import (
-	"github.com/gin-gonic/gin"
-
 	"github.com/SeijiOmi/gin-tamplate/controller"
+	"github.com/gin-gonic/gin"
 )
 
 // Init is initialize server
@@ -17,12 +16,14 @@ func router() *gin.Engine {
 
 	u := r.Group("/users")
 	{
-		ctrl := user.Controller{}
-		u.GET("", ctrl.Index)
-		u.GET("/:id", ctrl.Show)
-		u.POST("", ctrl.Create)
-		u.PUT("/:id", ctrl.Update)
-		u.DELETE("/:id", ctrl.Delete)
+		u.GET("", controller.Index)
+		u.GET("/:id", controller.Show)
+		u.POST("", controller.Create)
+		u.PUT("/:id", controller.Update)
+		u.DELETE("/:id", controller.Delete)
+
+		u.POST("/login", controller.Login)
+		u.POST("/auth", controller.Auth)
 	}
 
 	return r

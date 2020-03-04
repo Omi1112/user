@@ -2,14 +2,13 @@ package server
 
 import (
 	"fmt"
-	// "io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 	"os"
+	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/SeijiOmi/gin-tamplate/db"
+	"github.com/stretchr/testify/assert"
 )
 
 /*
@@ -62,7 +61,7 @@ func TestRouter(t *testing.T) {
 	defer testServer.Close()
 
 	req, _ := http.NewRequest("GET", testServer.URL+"/users", nil)
-	fmt.Println(testServer.URL+"/users")
+	fmt.Println(testServer.URL + "/users")
 	fmt.Println(req)
 
 	resp, err := client.Do(req)

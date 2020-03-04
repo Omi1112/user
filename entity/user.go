@@ -2,7 +2,8 @@ package entity
 
 // User is user models property
 type User struct {
-	ID        uint   `json:"id"`
-	FirstName string `json:"firstname"`
-	LastName  string `json:"lastname"`
+	ID       uint   `json:"id"`
+	Email    string `json:"email"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }
