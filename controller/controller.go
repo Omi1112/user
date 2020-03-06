@@ -26,8 +26,7 @@ func Index(c *gin.Context) {
 func Create(c *gin.Context) {
 	var inputUser entity.User
 	if err := bindJSON(c, &inputUser); err != nil {
-		c.AbortWithStatus(400)
-		fmt.Println(err)
+		return
 	}
 
 	var b service.Behavior
@@ -58,8 +57,13 @@ func Show(c *gin.Context) {
 // Update action: PUT /users/:id
 func Update(c *gin.Context) {
 	id := c.Params.ByName("id")
+	var inputUser entity.User
+	if err := bindJSON(c, &inputUser); err != nil {
+		return
+	}
+
 	var b service.Behavior
-	p, err := b.UpdateByID(id, c)
+	p, err := b.UpdateByID(id, inputUser)
 
 	if err != nil {
 		c.AbortWithStatus(400)

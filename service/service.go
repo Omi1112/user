@@ -12,14 +12,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Behavior procides user's behavior
+// Behavior ユーザサービスを提供するメソッド群
 type Behavior struct{}
 
 const (
 	secret = "2FMd5FNSqS/nW2wWJy5S3ppjSHhUnLt8HuwBkTD6HqfPfBBDlykwLA=="
 )
 
-// GetAll is get all User
+// GetAll ユーザ全件を取得
 func (b Behavior) GetAll() ([]entity.User, error) {
 	db := db.GetDB()
 	var u []entity.User
@@ -31,16 +31,14 @@ func (b Behavior) GetAll() ([]entity.User, error) {
 	return u, nil
 }
 
-// CreateModel is create User model
+// CreateModel ユーザ情報の生成
 func (b Behavior) CreateModel(inputUser entity.User) (entity.User, error) {
-	var createUser entity.User
+	createUser := inputUser
 	db := db.GetDB()
 
-	// パスワードのハッシュを生成
-	hash, err := bcrypt.GenerateFromPassword([]byte(inputUser.Password), 10)
-	inputUser.Password = string(hash)
+	hash, err := createHashPassword(inputUser.Password)
+	createUser.Password = hash
 	if err != nil {
-		log.Fatal(err)
 		return createUser, err
 	}
 
@@ -51,7 +49,7 @@ func (b Behavior) CreateModel(inputUser entity.User) (entity.User, error) {
 	return createUser, nil
 }
 
-// GetByID is get a User
+// GetByID IDを元にユーザ1件を取得
 func (b Behavior) GetByID(id string) (entity.User, error) {
 	db := db.GetDB()
 	var u entity.User
@@ -63,25 +61,27 @@ func (b Behavior) GetByID(id string) (entity.User, error) {
 	return u, nil
 }
 
-// UpdateByID is update a User
-func (b Behavior) UpdateByID(id string, c *gin.Context) (entity.User, error) {
+// UpdateByID 指定されたidをinputUser通りに更新
+func (b Behavior) UpdateByID(id string, inputUser entity.User) (entity.User, error) {
 	db := db.GetDB()
-	var u entity.User
-
-	if err := db.Where("id = ?", id).First(&u).Error; err != nil {
-		return u, err
+	var findUser entity.User
+	if err := db.Where("id = ?", id).First(&findUser).Error; err != nil {
+		return findUser, err
 	}
 
-	if err := c.BindJSON(&u); err != nil {
-		return u, err
+	updateUser := inputUser
+	hash, err := createHashPassword(inputUser.Password)
+	updateUser.Password = hash
+	if err != nil {
+		return updateUser, err
 	}
+	updateUser.ID = findUser.ID
+	db.Save(&updateUser)
 
-	db.Save(&u)
-
-	return u, nil
+	return updateUser, nil
 }
 
-// DeleteByID is delete a User
+// DeleteByID 指定されたidを削除
 func (b Behavior) DeleteByID(id string) error {
 	db := db.GetDB()
 	var u entity.User
@@ -93,7 +93,7 @@ func (b Behavior) DeleteByID(id string) error {
 	return nil
 }
 
-// LoginAuth ログイン認証を行い認証トークンを発行する
+// LoginAuth ログイン認証を行い認証トークンを発行
 func (b Behavior) LoginAuth(inputUser entity.User) (string, error) {
 	// ユーザの取得
 	var dbUser entity.User
@@ -138,6 +138,16 @@ func (b Behavior) TokenAuth(c *gin.Context) (entity.User, error) {
 	}
 
 	return user, nil
+}
+
+func createHashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	hashPassword := string(hash)
+	if err != nil {
+		log.Fatal(err)
+		return hashPassword, err
+	}
+	return hashPassword, nil
 }
 
 // Token 作成関数
