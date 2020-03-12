@@ -94,22 +94,17 @@ func Login(c *gin.Context) {
 	}
 
 	var b service.Behavior
-	token, err := b.LoginAuth(inputUser)
+	auth, err := b.LoginAuth(inputUser)
 	if err != nil {
 		c.AbortWithStatus(403)
 		fmt.Println(err)
 	} else {
-		c.JSON(201, gin.H{"token": token})
+		c.JSON(200, auth)
 	}
 }
 
 // Auth action: POST /users/Auth
 func Auth(c *gin.Context) {
-	var inputUser entity.User
-	if err := bindJSON(c, &inputUser); err != nil {
-		return
-	}
-
 	var b service.Behavior
 	user, err := b.TokenAuth(c)
 	if err != nil {

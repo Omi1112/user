@@ -94,29 +94,30 @@ func (b Behavior) DeleteByID(id string) error {
 }
 
 // LoginAuth ログイン認証を行い認証トークンを発行
-func (b Behavior) LoginAuth(inputUser entity.User) (string, error) {
+func (b Behavior) LoginAuth(inputUser entity.User) (entity.Auth, error) {
 	// ユーザの取得
 	var dbUser entity.User
 	db := db.GetDB()
 	if err := db.Where("email = ?", inputUser.Email).First(&dbUser).Error; err != nil {
-		return "", err
+		return entity.Auth{}, err
 	}
 
 	// パスワードの確認
 	err := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(inputUser.Password))
 	if err != nil {
-		return "", err
+		return entity.Auth{}, err
 	}
 
 	// トークンの作成
 	token, err := createToken(dbUser)
 	if err != nil {
 		log.Fatal(err)
-		return "", err
+		return entity.Auth{}, err
 	}
 	fmt.Println(token)
+	returnAuth := entity.Auth{Token: token, ID: dbUser.ID}
 
-	return token, err
+	return returnAuth, err
 }
 
 // TokenAuth 認証トークンで承認を行い、ユーザ情報を返却するサービス

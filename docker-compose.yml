@@ -1,9 +1,9 @@
 version: '3'
 services:
-  api:
+  user:
     tty: true
-    links:
-      - mysql
+    # links:
+    #   - mysql
     image: zemisemi/gin-template
     working_dir: /go/src/github.com/SeijiOmi/gin-tamplate
     # entrypoint:
@@ -24,8 +24,10 @@ services:
       DB_USER: root
       DB_PASSWORD: password
       DB_NAME: sample
-      DB_ADDRESS: mysql:3306
-  mysql:
+      DB_ADDRESS: user-db:3306
+    networks:
+      - my_network
+  user-db:
     build: ./docker/db
     image: mysql:8.0
     restart: always
@@ -33,9 +35,15 @@ services:
       MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: sample
-    hostname: mysql
+    # hostname: mysql
     ports:
       - "3306:3306"
     volumes:
       - ./docker/db/conf.d/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./logs:/var/log/mysql
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    external: true
