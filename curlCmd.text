@@ -1,0 +1,7 @@
+curl http://localhost:8080/users -X POST -H "Content-Type: application/json" -d '{"email": "test@co.jp", "name": "taro", "password": "test"}'
+curl http://localhost:8080/users/login -X POST -H "Content-Type: application/json" -d '{"email": "taro7", "name": "taro7", "password": "taro7"}'
+curl http://localhost:8080/users/auth -X POST -H "Content-Type: application/json" -d '{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTN9.887nkPJY1W-thOnwD7TVI6Ip8ad_PMaFzaVqsmVrFNQ"}'
+curl http://localhost:8080/users/auth -X POST -H "Content-Type: application/json" -d '{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTB9.q7QKPwb1_orhLBsBdHLgiZL5NdH3hz4VM-c6OrzxFys"}'
+
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTN9.887nkPJY1W-thOnwD7TVI6Ip8ad_PMaFzaVqsmVrFNQ
