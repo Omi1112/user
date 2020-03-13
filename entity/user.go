@@ -3,7 +3,7 @@ package entity
 // User is user models property
 type User struct {
 	ID       uint   `json:"id"`
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
+	Email    string `json:"email"    binding:"required,email"`
+	Name     string `json:"name"     binding:"required,max=100"`
+	Password string `json:"password" binding:"required,min=8,max=100,alphanum"`
 }

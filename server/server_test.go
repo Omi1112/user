@@ -1,13 +1,15 @@
 package server
 
 import (
-	"fmt"
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
 	"github.com/SeijiOmi/gin-tamplate/db"
+	"github.com/SeijiOmi/gin-tamplate/entity"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,6 +18,8 @@ import (
 */
 
 var client = new(http.Client)
+var testServer *httptest.Server
+var userDefault = entity.User{Name: "test", Email: "test@mail.co.jp", Password: "password"}
 
 // テストを統括するテスト時には、これが実行されるイメージでいる。
 func TestMain(m *testing.M) {
@@ -30,10 +34,13 @@ func TestMain(m *testing.M) {
 // テスト実施前共通処理
 func setup() {
 	db.Init()
+	router := router()
+	testServer = httptest.NewServer(router)
 }
 
 // テスト実施後共通処理
 func teardown() {
+	testServer.Close()
 	db.Close()
 }
 
@@ -41,35 +48,66 @@ func teardown() {
 	ここからが個別のテスト実装
 */
 
-// サーバー内部でのテストサンプル
-func TestHelloHandler(t *testing.T) {
-	router := router()
-
-	req := httptest.NewRequest("GET", "/users", nil)
-	rec := httptest.NewRecorder()
-
-	router.ServeHTTP(rec, req)
-
-	assert.Equal(t, http.StatusOK, rec.Code)
-	// assert.Equal(t, helloMessage, rec.Body.String())
+func TestUserCreateSuccessValid(t *testing.T) {
+	initUserTable()
+	input, _ := json.Marshal(userDefault)
+	resp, _ := http.Post(testServer.URL+"/users", "application/json", bytes.NewBuffer(input))
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 }
 
-// E2Eテストサンプル
-func TestRouter(t *testing.T) {
-	router := router()
-	testServer := httptest.NewServer(router)
-	defer testServer.Close()
+func TestUserCreateRequireErrValid(t *testing.T) {
+	initUserTable()
+	inputUser := userDefault
+	inputUser.Name = ""
+	input, _ := json.Marshal(inputUser)
+	resp, _ := http.Post(testServer.URL+"/users", "application/json", bytes.NewBuffer(input))
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 
-	req, _ := http.NewRequest("GET", testServer.URL+"/users", nil)
-	fmt.Println(testServer.URL + "/users")
-	fmt.Println(req)
+	initUserTable()
+	inputUser = userDefault
+	inputUser.Email = ""
+	input, _ = json.Marshal(inputUser)
+	resp, _ = http.Post(testServer.URL+"/users", "application/json", bytes.NewBuffer(input))
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 
-	resp, err := client.Do(req)
-	fmt.Println(resp)
-	fmt.Println(err)
+	initUserTable()
+	inputUser = userDefault
+	inputUser.Password = ""
+	input, _ = json.Marshal(inputUser)
+	resp, _ = http.Post(testServer.URL+"/users", "application/json", bytes.NewBuffer(input))
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+}
 
-	// respBody, _ := ioutil.ReadAll(resp.Body)
+func TestUserCreateFormatErrValid(t *testing.T) {
+	initUserTable()
+	inputUser := userDefault
+	inputUser.Email = "test"
+	input, _ := json.Marshal(inputUser)
+	resp, _ := http.Post(testServer.URL+"/users", "application/json", bytes.NewBuffer(input))
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+}
+func TestUserCreateAlphaNumErrValid(t *testing.T) {
+	initUserTable()
+	inputUser := userDefault
+	inputUser.Password = "あいうえおかきくけこ"
+	input, _ := json.Marshal(inputUser)
+	resp, _ := http.Post(testServer.URL+"/users", "application/json", bytes.NewBuffer(input))
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+}
 
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	// assert.Equal(t, helloMessage, string(respBody))
+func TestUserCreateEmailUniqueErrValid(t *testing.T) {
+	initUserTable()
+	inputUser := userDefault
+	input, _ := json.Marshal(inputUser)
+	resp, _ := http.Post(testServer.URL+"/users", "application/json", bytes.NewBuffer(input))
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	resp, _ = http.Post(testServer.URL+"/users", "application/json", bytes.NewBuffer(input))
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+}
+
+func initUserTable() {
+	db := db.GetDB()
+	var u entity.User
+	db.Delete(&u)
 }
