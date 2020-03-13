@@ -61,6 +61,16 @@ func (b Behavior) GetByID(id string) (entity.User, error) {
 	return u, nil
 }
 
+// GetUserByEmail emailを基にユーザを取得する。
+func (b Behavior) GetUserByEmail(email string) (entity.User, error) {
+	var user entity.User
+	db := db.GetDB()
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		return entity.User{}, err
+	}
+	return user, nil
+}
+
 // UpdateByID 指定されたidをinputUser通りに更新
 func (b Behavior) UpdateByID(id string, inputUser entity.User) (entity.User, error) {
 	db := db.GetDB()
@@ -95,15 +105,13 @@ func (b Behavior) DeleteByID(id string) error {
 
 // LoginAuth ログイン認証を行い認証トークンを発行
 func (b Behavior) LoginAuth(inputUser entity.User) (entity.Auth, error) {
-	// ユーザの取得
-	var dbUser entity.User
-	db := db.GetDB()
-	if err := db.Where("email = ?", inputUser.Email).First(&dbUser).Error; err != nil {
+	dbUser, err := b.GetUserByEmail(inputUser.Email)
+	if err != nil {
 		return entity.Auth{}, err
 	}
 
 	// パスワードの確認
-	err := bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(inputUser.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(inputUser.Password))
 	if err != nil {
 		return entity.Auth{}, err
 	}

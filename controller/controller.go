@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 
@@ -26,6 +27,11 @@ func Index(c *gin.Context) {
 func Create(c *gin.Context) {
 	var inputUser entity.User
 	if err := bindJSON(c, &inputUser); err != nil {
+		return
+	}
+	if userEmailExist(inputUser.Email) {
+		c.AbortWithStatus(http.StatusBadRequest)
+		fmt.Println("Email Exist")
 		return
 	}
 
@@ -117,10 +123,19 @@ func Auth(c *gin.Context) {
 
 func bindJSON(c *gin.Context, data interface{}) error {
 	if err := c.BindJSON(data); err != nil {
-		c.AbortWithStatus(400)
+		c.AbortWithStatus(http.StatusBadRequest)
 		fmt.Println("bind JSON err")
 		fmt.Println(err)
 		return err
 	}
 	return nil
+}
+
+func userEmailExist(email string) bool {
+	var b service.Behavior
+	user, _ := b.GetUserByEmail(email)
+	if user.ID == 0 {
+		return false
+	}
+	return true
 }
