@@ -9,6 +9,7 @@ RUN go get -u github.com/gin-gonic/gin \
   && go get github.com/jinzhu/gorm \
   && go get github.com/go-sql-driver/mysql \
   && go get github.com/codegangsta/gin \
+  && go get golang.org/x/lint/golint \
   && apt-get install -y mariadb-client
 
 ENV DOCKERIZE_VERSION v0.6.0
