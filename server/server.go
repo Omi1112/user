@@ -47,9 +47,12 @@ func router() *gin.Engine {
 		u.POST("", controller.Create)
 		u.PUT("/:id", controller.Update)
 		u.DELETE("/:id", controller.Delete)
+	}
 
-		u.POST("/login", controller.Login)
-		u.POST("/auth", controller.Auth)
+	a := r.Group("/auth")
+	{
+		a.GET("/:id", controller.Auth)
+		a.POST("", controller.Login)
 	}
 
 	return r
