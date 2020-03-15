@@ -8,7 +8,6 @@ import (
 	"github.com/SeijiOmi/gin-tamplate/db"
 	"github.com/SeijiOmi/gin-tamplate/entity"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -129,13 +128,9 @@ func (b Behavior) LoginAuth(inputUser entity.User) (entity.Auth, error) {
 }
 
 // TokenAuth 認証トークンで承認を行い、ユーザ情報を返却するサービス
-func (b Behavior) TokenAuth(c *gin.Context) (entity.User, error) {
-	var auth entity.Auth
+func (b Behavior) TokenAuth(token string) (entity.User, error) {
 	var user entity.User
-	if err := c.BindJSON(&auth); err != nil {
-		return user, err
-	}
-	id, err := perthToken(auth.Token)
+	id, err := perthToken(token)
 	if err != nil {
 		return user, err
 	}

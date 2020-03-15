@@ -92,7 +92,7 @@ func Delete(c *gin.Context) {
 	}
 }
 
-// Login action: POST /users/login
+// Login action: POST /Auth
 func Login(c *gin.Context) {
 	var inputUser entity.User
 	if err := bindJSON(c, &inputUser); err != nil {
@@ -109,12 +109,13 @@ func Login(c *gin.Context) {
 	}
 }
 
-// Auth action: POST /users/Auth
+// Auth action: GET /auth/:id
 func Auth(c *gin.Context) {
+	id := c.Params.ByName("id")
 	var b service.Behavior
-	user, err := b.TokenAuth(c)
+	user, err := b.TokenAuth(id)
 	if err != nil {
-		c.AbortWithStatus(403)
+		c.AbortWithStatus(http.StatusBadRequest)
 		fmt.Println(err)
 	} else {
 		c.JSON(201, user)
