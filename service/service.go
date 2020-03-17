@@ -103,14 +103,14 @@ func (b Behavior) DeleteByID(id string) error {
 }
 
 // LoginAuth ログイン認証を行い認証トークンを発行
-func (b Behavior) LoginAuth(inputUser entity.User) (entity.Auth, error) {
-	dbUser, err := b.GetUserByEmail(inputUser.Email)
+func (b Behavior) LoginAuth(email string, password string) (entity.Auth, error) {
+	dbUser, err := b.GetUserByEmail(email)
 	if err != nil {
 		return entity.Auth{}, err
 	}
 
 	// パスワードの確認
-	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(inputUser.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(password))
 	if err != nil {
 		return entity.Auth{}, err
 	}

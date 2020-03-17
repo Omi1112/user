@@ -94,18 +94,21 @@ func Delete(c *gin.Context) {
 
 // Login action: POST /Auth
 func Login(c *gin.Context) {
-	var inputUser entity.User
+	inputUser := struct {
+		Email    string
+		Password string
+	}{}
 	if err := bindJSON(c, &inputUser); err != nil {
 		return
 	}
 
 	var b service.Behavior
-	auth, err := b.LoginAuth(inputUser)
+	auth, err := b.LoginAuth(inputUser.Email, inputUser.Password)
 	if err != nil {
 		c.AbortWithStatus(403)
 		fmt.Println(err)
 	} else {
-		c.JSON(200, auth)
+		c.JSON(http.StatusCreated, auth)
 	}
 }
 
@@ -118,7 +121,7 @@ func Auth(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		fmt.Println(err)
 	} else {
-		c.JSON(201, user)
+		c.JSON(http.StatusOK, user)
 	}
 }
 
