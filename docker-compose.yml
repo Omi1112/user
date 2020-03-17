@@ -2,8 +2,6 @@ version: '3'
 services:
   user:
     tty: true
-    # links:
-    #   - mysql
     image: zemisemi/gin-template
     working_dir: /go/src/github.com/SeijiOmi/gin-tamplate
     # entrypoint:
@@ -25,6 +23,7 @@ services:
       DB_PASSWORD: password
       DB_NAME: sample
       DB_ADDRESS: user-db:3306
+      POINT_URL: http://point:9000
     networks:
       - my_network
   user-db:
@@ -35,12 +34,21 @@ services:
       MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: sample
-    # hostname: mysql
     ports:
       - "3306:3306"
     volumes:
       - ./docker/db/conf.d/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./logs:/var/log/mysql
+    networks:
+      - my_network
+
+  user-mock-point:
+    build: ./docker/json-server/point
+    ports:
+      - '3040:3000'
+    volumes:
+      - ./docker/json-server/point/:/data/
+    command: json-server -w db.json --routes route.json -m middleware.js --host 0.0.0.0
     networks:
       - my_network
 

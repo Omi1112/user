@@ -17,8 +17,8 @@ import (
 */
 
 var client = new(http.Client)
-
 var userDefault = entity.User{Name: "test", Email: "test@co.jp", Password: "password"}
+var tmpBasePointURL string
 
 // テストを統括するテスト時には、これが実行されるイメージでいる。
 func TestMain(m *testing.M) {
@@ -32,6 +32,8 @@ func TestMain(m *testing.M) {
 
 // テスト実施前共通処理
 func setup() {
+	tmpBasePointURL = os.Getenv("POINT_URL")
+	os.Setenv("POINT_URL", "http://user-mock-point:3000")
 	db.Init()
 	initUserTable()
 }
@@ -39,6 +41,7 @@ func setup() {
 // テスト実施後共通処理
 func teardown() {
 	db.Close()
+	os.Setenv("POINT_URL", tmpBasePointURL)
 }
 
 /*

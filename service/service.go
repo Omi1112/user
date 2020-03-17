@@ -1,13 +1,17 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/SeijiOmi/gin-tamplate/db"
 	"github.com/SeijiOmi/gin-tamplate/entity"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/jmcvetta/napping"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,7 +37,6 @@ func (b Behavior) GetAll() ([]entity.User, error) {
 // CreateModel ユーザ情報の生成
 func (b Behavior) CreateModel(inputUser entity.User) (entity.User, error) {
 	createUser := inputUser
-	db := db.GetDB()
 
 	hash, err := createHashPassword(inputUser.Password)
 	createUser.Password = hash
@@ -41,7 +44,21 @@ func (b Behavior) CreateModel(inputUser entity.User) (entity.User, error) {
 		return createUser, err
 	}
 
+	db := db.GetDB()
+
 	if err := db.Create(&createUser).Error; err != nil {
+		return createUser, err
+	}
+
+	token, err := createToken(createUser)
+	if err != nil {
+		b.DeleteByID(strconv.Itoa(int(createUser.ID)))
+		return createUser, err
+	}
+	initPoint := 10000
+	err = createPoint(initPoint, token)
+	if err != nil {
+		b.DeleteByID(strconv.Itoa(int(createUser.ID)))
 		return createUser, err
 	}
 
@@ -206,4 +223,30 @@ func perthToken(signedString string) (int, error) {
 	}
 	id = int(floatID)
 	return id, nil
+}
+
+func createPoint(point int, token string) error {
+	input := struct {
+		Number int    `json:"number"`
+		Token  string `json:"token"`
+	}{
+		point,
+		token,
+	}
+	error := struct {
+		Error string
+	}{}
+
+	baseURL := os.Getenv("POINT_URL")
+	resp, err := napping.Post(baseURL+"/points", &input, nil, &error)
+
+	if err != nil {
+		return err
+	}
+
+	if resp.Status() == http.StatusBadRequest {
+		return errors.New("token invalid")
+	}
+
+	return nil
 }
