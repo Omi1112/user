@@ -106,6 +106,25 @@ func TestUserCreateEmailUniqueErrValid(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 }
 
+func TestLoginSuccess(t *testing.T) {
+	initUserTable()
+	input, _ := json.Marshal(userDefault)
+	resp, _ := http.Post(testServer.URL+"/users", "application/json", bytes.NewBuffer(input))
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	loginUser := struct {
+		Email    string
+		Password string
+	}{
+		userDefault.Email,
+		userDefault.Password,
+	}
+
+	input, _ = json.Marshal(loginUser)
+	resp, _ = http.Post(testServer.URL+"/auth", "application/json", bytes.NewBuffer(input))
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+}
+
 func initUserTable() {
 	db := db.GetDB()
 	var u entity.User
