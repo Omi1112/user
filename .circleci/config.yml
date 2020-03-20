@@ -2,7 +2,6 @@ version: 2
 jobs:
   build:
     machine: true
-
     steps:
       # これでリポジトリのデータがカレントに持ってこられるのかな恐らく。
       - checkout
