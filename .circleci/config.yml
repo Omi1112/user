@@ -24,7 +24,9 @@ jobs:
       # dockerの時はできていたけど、machineでできるかわからん。要確認
       - run: dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
 
-      - run: docker-compose exec user make
+      - run:
+          name: ping-test
+          command: docker-compose exec user ping user-db -c 5
 
       - run:
           name: lint
