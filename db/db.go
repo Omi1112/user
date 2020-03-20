@@ -6,6 +6,8 @@ import (
 
 	"github.com/SeijiOmi/gin-tamplate/entity"
 	"github.com/jinzhu/gorm"
+
+	// mysql呼び出し用の設定
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
@@ -20,8 +22,8 @@ func Init() {
 	USER := os.Getenv("DB_USER")
 	PASS := os.Getenv("DB_PASSWORD")
 	PROTOCOL := "tcp(" + os.Getenv("DB_ADDRESS") + ")"
-	DB_NAME := os.Getenv("DB_NAME")
-	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DB_NAME + "?parseTime=true"
+	DBNAME := os.Getenv("DB_NAME")
+	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?parseTime=true"
 	fmt.Println(CONNECT)
 	_db, err := gorm.Open(DBMS, CONNECT)
 	db = _db

@@ -33,7 +33,7 @@ func TestMain(m *testing.M) {
 // テスト実施前共通処理
 func setup() {
 	tmpBasePointURL = os.Getenv("POINT_URL")
-	os.Setenv("POINT_URL", "http://user-mock-point:3000")
+	setTestURL()
 	db.Init()
 	initUserTable()
 }
@@ -67,8 +67,6 @@ func TestCreateModel(t *testing.T) {
 	assert.Equal(t, userDefault.Name, user.Name)
 	assert.Equal(t, userDefault.Email, user.Email)
 	assert.NotEqual(t, userDefault.Password, user.Password)
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userDefault.Password))
-	assert.Equal(t, nil, err)
 }
 
 func TestGetByIDExists(t *testing.T) {
@@ -154,6 +152,93 @@ func TestDeleteByIDNotExists(t *testing.T) {
 	assert.Equal(t, beforeCount, afterCount)
 }
 
+func TestCreatePoint(t *testing.T) {
+	err := createPoint(100, "testToken")
+	assert.Equal(t, nil, err)
+}
+
+func TestCreatePointNotFoundErr(t *testing.T) {
+	os.Setenv("POINT_URL", "http://unknown")
+	err := createPoint(100, "testToken")
+	assert.NotEqual(t, nil, err)
+	setTestURL()
+}
+
+func TestTokenSuccess(t *testing.T) {
+	user := userDefault
+	token, err := createToken(user)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, "", token)
+
+	id, err := perthToken(token)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, user.ID, id)
+}
+
+func TestPerthTokenErr(t *testing.T) {
+	id, err := perthToken("testToken")
+	assert.NotEqual(t, nil, err)
+	assert.Equal(t, uint(0), id)
+}
+
+func TestCreateHashPassword(t *testing.T) {
+	hashPassword, err := createHashPassword(userDefault.Password)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, userDefault.Password, hashPassword)
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(userDefault.Password))
+	assert.Equal(t, nil, err)
+}
+
+func TestTokenAuth(t *testing.T) {
+	initUserTable()
+	var b Behavior
+	user := userDefault
+	createUser, err := b.CreateModel(user)
+	assert.Equal(t, nil, err)
+
+	auth, err := b.LoginAuth(user.Email, user.Password)
+	assert.Equal(t, nil, err)
+
+	authUser, err := b.TokenAuth(auth.Token)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, createUser, authUser)
+}
+func TestTokenAuthErr(t *testing.T) {
+	initUserTable()
+
+	user := userDefault
+	token, err := createToken(user)
+	assert.Equal(t, nil, err)
+
+	var b Behavior
+	authUser, err := b.TokenAuth(token)
+	assert.NotEqual(t, nil, err)
+	assert.Equal(t, entity.User{}, authUser)
+}
+
+func TestLoginAuthUnknownUserErr(t *testing.T) {
+	initUserTable()
+	user := userDefault
+
+	var b Behavior
+	auth, err := b.LoginAuth(user.Email, user.Password)
+	assert.NotEqual(t, nil, err)
+	assert.Equal(t, entity.Auth{}, auth)
+}
+
+func TestLoginAuthPasswordErr(t *testing.T) {
+	initUserTable()
+	user := userDefault
+
+	var b Behavior
+	_, err := b.CreateModel(user)
+	assert.Equal(t, nil, err)
+	auth, err := b.LoginAuth(user.Email, "unknownPassword")
+	assert.NotEqual(t, nil, err)
+	assert.Equal(t, entity.Auth{}, auth)
+}
+
 func createDefaultUser() entity.User {
 	db := db.GetDB()
 	user := userDefault
@@ -165,4 +250,8 @@ func initUserTable() {
 	db := db.GetDB()
 	var u entity.User
 	db.Delete(&u)
+}
+
+func setTestURL() {
+	os.Setenv("POINT_URL", "http://user-mock-point:3000")
 }
