@@ -1,0 +1,29 @@
+version: 2
+jobs:
+  build:
+    machine: true
+
+    steps:
+      # これでリポジトリのデータがカレントに持ってこられるのかな恐らく。
+      - checkout
+
+      - run:
+        name: create docker network
+        command: docker network create my_network
+
+      - run:
+        name: docker-compose up
+        command: docker-compose up -d
+
+      # dockerの時はできていたけど、machineでできるかわからん。要確認
+      - run: dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
+
+      - run: docker-compose exec user make
+
+      - run:
+        name: lint
+        command: docker-compose exec user bash lint.sh
+
+      - run:
+        name: testing
+        command: docker-compose exec user make

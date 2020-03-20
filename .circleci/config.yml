@@ -1,45 +1,35 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
   build:
-    docker:
-      # specify the version
-      - image: zemisemi/gin-template
-        environment:
-          DB_USER: root
-          DB_PASSWORD: password
-          DB_NAME: sample
-          DB_ADDRESS: 127.0.0.1:3306
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      - image: mysql:8.0
-        environment:
-          MYSQL_USER: root
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: sample
-
-    #### TEMPLATE_NOTE: go expects specific checkout path representing url
-    #### expecting it in the form of
-    ####   /go/src/github.com/circleci/go-tool
-    ####   /go/src/bitbucket.org/circleci/go-tool
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
-    # working_directory: /go/src
+    machine: true
     steps:
+      # これでリポジトリのデータがカレントに持ってこられるのかな恐らく。
       - checkout
 
-      # specify any bash command here prefixed with `run: `
-      # - run: go get -v -t -d ./...
-      # - run: go test -v ./...
-      # - run:
-      #   name: db build wait
-      #   command: dockerize -wait tcp://localhost:3306 -timeout 1m
-      - run: dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
-      # - run:
-      #   name: db build wait
-      #   command: dockerize -wait tcp://localhost:3306 -timeout 1m
+      - run:
+          name: create docker network
+          command: docker network create my_network
 
-      - run: make
+      - run:
+          name: dockerize をインストール
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+
+      - run:
+          name: docker-compose up
+          command: docker-compose up -d
+
+      - run: dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
+
+      - run:
+          name: ping-test
+          command: docker-compose exec user ping user-db -c 5
+
+      - run:
+          name: lint
+          command: docker-compose exec user bash lint.sh
+
+      - run:
+          name: testing
+          command: docker-compose exec user make

@@ -153,7 +153,7 @@ func (b Behavior) TokenAuth(token string) (entity.User, error) {
 	}
 	fmt.Println(string(id))
 
-	user, err = b.GetByID(strconv.Itoa(id))
+	user, err = b.GetByID(strconv.Itoa(int(id)))
 	if err != nil {
 		return user, err
 	}
@@ -189,8 +189,8 @@ func createToken(u entity.User) (string, error) {
 }
 
 // perthToken は jwt トークンからidを取得する。
-func perthToken(signedString string) (int, error) {
-	var id int
+func perthToken(signedString string) (uint, error) {
+	var id uint
 	token, err := jwt.Parse(signedString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -221,7 +221,7 @@ func perthToken(signedString string) (int, error) {
 	if !ok {
 		return 0, fmt.Errorf("not found id in %s", signedString)
 	}
-	id = int(floatID)
+	id = uint(floatID)
 	return id, nil
 }
 
