@@ -7,9 +7,9 @@ jobs:
       # これでリポジトリのデータがカレントに持ってこられるのかな恐らく。
       - checkout
 
-      - run:
-          name: create docker network
-          command: docker network create my_network
+      # - run:
+      #     name: create docker network
+      #     command: docker network create my_network
 
       - run:
           name: dockerize をインストール
