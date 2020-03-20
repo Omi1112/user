@@ -1,8 +1,7 @@
 version: 2
 jobs:
   build:
-    macos:
-      xcode: "10.0.0"
+    machine: true
 
     steps:
       # これでリポジトリのデータがカレントに持ってこられるのかな恐らく。
