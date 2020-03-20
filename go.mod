@@ -1,4 +1,4 @@
-module github.com/SeijiOmi/gin-tamplate
+module github.com/SeijiOmi/user
 
 go 1.13
 

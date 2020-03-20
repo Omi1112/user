@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/SeijiOmi/gin-tamplate/entity"
+	"github.com/SeijiOmi/user/entity"
 	"github.com/jinzhu/gorm"
 
 	// mysql呼び出し用の設定

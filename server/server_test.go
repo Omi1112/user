@@ -8,8 +8,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/SeijiOmi/gin-tamplate/db"
-	"github.com/SeijiOmi/gin-tamplate/entity"
+	"github.com/SeijiOmi/user/db"
+	"github.com/SeijiOmi/user/entity"
 	"github.com/stretchr/testify/assert"
 )
 
