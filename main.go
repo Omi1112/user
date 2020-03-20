@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/SeijiOmi/gin-tamplate/db"
-	"github.com/SeijiOmi/gin-tamplate/server"
+	"github.com/SeijiOmi/user/db"
+	"github.com/SeijiOmi/user/server"
 )
 
 func main() {

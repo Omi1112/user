@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/SeijiOmi/gin-tamplate/entity"
-	"github.com/SeijiOmi/gin-tamplate/service"
+	"github.com/SeijiOmi/user/entity"
+	"github.com/SeijiOmi/user/service"
 )
 
 // Index action: GET /users

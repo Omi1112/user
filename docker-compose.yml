@@ -3,7 +3,7 @@ services:
   user:
     tty: true
     image: zemisemi/gin-template
-    working_dir: /go/src/github.com/SeijiOmi/gin-tamplate
+    working_dir: /go/src/github.com/SeijiOmi/user
     # entrypoint:
     #   - dockerize
     #   - -timeout
@@ -17,7 +17,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - .:/go/src/github.com/SeijiOmi/gin-tamplate
+      - .:/go/src/github.com/SeijiOmi/user
     environment:
       DB_USER: root
       DB_PASSWORD: password

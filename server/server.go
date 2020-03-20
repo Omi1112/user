@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/SeijiOmi/gin-tamplate/controller"
+	"github.com/SeijiOmi/user/controller"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )

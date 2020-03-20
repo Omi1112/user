@@ -8,8 +8,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/SeijiOmi/gin-tamplate/db"
-	"github.com/SeijiOmi/gin-tamplate/entity"
+	"github.com/SeijiOmi/user/db"
+	"github.com/SeijiOmi/user/entity"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jmcvetta/napping"
 	"golang.org/x/crypto/bcrypt"

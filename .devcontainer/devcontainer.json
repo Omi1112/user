@@ -21,7 +21,7 @@
 
 	// The optional 'workspaceFolder' property is the path VS Code should open by default when
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
-	"workspaceFolder": "/go/src/github.com/SeijiOmi/gin-tamplate",
+	"workspaceFolder": "/go/src/github.com/SeijiOmi/user",
 
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
