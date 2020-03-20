@@ -12,8 +12,16 @@ jobs:
           command: docker network create my_network
 
       - run:
+          name: dockerize をインストール
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+
+      - run:
           name: docker-compose up
           command: docker-compose up -d
+
+      - run: dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
 
       - run:
           name: stop
@@ -22,13 +30,6 @@ jobs:
           name: up
           command: docker-compose up -d
 
-      - run:
-          name: dockerize をインストール
-          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-          environment:
-            DOCKERIZE_VERSION: v0.3.0
-
-      # dockerの時はできていたけど、machineでできるかわからん。要確認
       - run: dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
 
       - run:
