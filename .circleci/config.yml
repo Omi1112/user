@@ -52,7 +52,7 @@ jobs:
           name: skaffold run
           command: skaffold run
 
-  build:
+  test:
     machine: true
     steps:
       # これでリポジトリのデータがカレントに持ってこられるのかな恐らく。
