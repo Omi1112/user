@@ -118,6 +118,7 @@ func TestUpdateByIDNotExists(t *testing.T) {
 }
 
 func TestDeleteByIDExists(t *testing.T) {
+	initUserTable()
 	user := createDefaultUser()
 
 	db := db.GetDB()
