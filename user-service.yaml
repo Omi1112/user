@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+spec:
+  # type: NodePort
+  type: LoadBalancer
+  selector:
+    app: user
+  ports:
+  - port: 80
+    targetPort: 8080
+    # nodePort: 30000

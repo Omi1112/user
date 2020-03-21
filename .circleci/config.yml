@@ -33,3 +33,46 @@ jobs:
       - run:
           name: testing
           command: docker-compose exec user make
+
+      - run:
+          name: set shell and install tools
+          command: |
+            set -x; \
+            apk add --no-cache --virtual .fetch-deps curl git python py-pip less groff
+
+      - run:
+          name: install kubectl
+          command: |
+            curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/linux/amd64/kubectl && \
+            chmod +x ./kubectl && \
+            mv ./kubectl /usr/local/bin/kubectl
+
+      - run:
+          name: install aws cli
+          command: pip install awscli
+
+      - run:
+          name: install aws-iam-authenticator
+          command: |
+            curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.12.7/2019-03-27/bin/linux/amd64/aws-iam-authenticator && \
+            chmod +x ./aws-iam-authenticator && \
+            mv ./aws-iam-authenticator /usr/local/bin
+
+      - run:
+          name: setup kubeconfig
+          command: aws eks update-kubeconfig --name $CLUSTER_NAME
+
+      - run:
+          name: login to dockerhub
+          command: echo $DOCKER_HUB_PSW | base64 -d | docker login -u $DOCKER_HUB_USR --password-stdin
+
+      - run:
+          name: install skaffold
+          command: |
+            curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/v0.32.0/skaffold-linux-amd64 && \
+            chmod +x skaffold && \
+            mv skaffold /usr/local/bin
+
+      - run:
+          name: skaffold run
+          command: skaffold run

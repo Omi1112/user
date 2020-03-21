@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # namespace: test
+  name: user
+  labels:
+    app: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+      - name: user
+        image: zemisemi/user
+        ports:
+        - containerPort: 8080
+        command:
+          - sh
+          - -c
+          - go run main.go
+        # tty: true
+        env:
+          - name: DB_USER
+            value: "root"
+          - name: DB_PASSWORD
+            value: "password"
+          - name: DB_NAME
+            value: "sample"
+          - name: DB_ADDRESS
+            value: "user-db:3306"
+          - name: POINT_URL
+            value: "http://point"
