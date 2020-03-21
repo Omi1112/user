@@ -5,7 +5,7 @@ build:
   - image: zemisemi/user
     context: .
   local:
-    push: false
+    push: true
 
 deploy:
   kubectl:
