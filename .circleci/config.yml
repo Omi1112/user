@@ -1,10 +1,19 @@
 version: 2
 jobs:
-  build:
-    machine: true
+  deploy:
+    docker:
+      - image: docker:18.09
     steps:
+
+      - run:
+          name: set shell and install tools
+          command: |
+            set -x; \
+            apk add --no-cache --virtual .fetch-deps curl git python py-pip less groff
+
       # これでリポジトリのデータがカレントに持ってこられるのかな恐らく。
       - checkout
+      - setup_remote_docker
 
       - run:
           name: install kubectl
@@ -43,6 +52,11 @@ jobs:
           name: skaffold run
           command: skaffold run
 
+  build:
+    machine: true
+    steps:
+      # これでリポジトリのデータがカレントに持ってこられるのかな恐らく。
+      - checkout
 
 
       - run:
