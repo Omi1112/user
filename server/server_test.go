@@ -129,6 +129,12 @@ func TestLoginSuccess(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 }
 
+func TestCreateDemouser(t *testing.T) {
+	initUserTable()
+	resp, _ := http.Post(testServer.URL+"/demo", "application/json", nil)
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+}
+
 func initUserTable() {
 	db := db.GetDB()
 	var u entity.User
