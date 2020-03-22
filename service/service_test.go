@@ -55,8 +55,8 @@ func TestGetAll(t *testing.T) {
 
 	var b Behavior
 	users, err := b.GetAll()
-	assert.Equal(t, err, nil)
-	assert.Equal(t, len(users), 2)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 2, len(users))
 }
 
 func TestCreateModel(t *testing.T) {
