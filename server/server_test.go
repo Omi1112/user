@@ -21,6 +21,7 @@ var client = new(http.Client)
 var testServer *httptest.Server
 var userDefault = entity.User{Name: "test", Email: "test@mail.co.jp", Password: "password"}
 var tmpBasePointURL string
+var tmpBasePostURL string
 
 // テストを統括するテスト時には、これが実行されるイメージでいる。
 func TestMain(m *testing.M) {
@@ -35,7 +36,8 @@ func TestMain(m *testing.M) {
 // テスト実施前共通処理
 func setup() {
 	tmpBasePointURL = os.Getenv("POINT_URL")
-	os.Setenv("POINT_URL", "http://user-mock-point:3000")
+	tmpBasePostURL = os.Getenv("POST_URL")
+	setTestURL()
 	db.Init()
 	router := router()
 	testServer = httptest.NewServer(router)
@@ -46,6 +48,7 @@ func teardown() {
 	testServer.Close()
 	db.Close()
 	os.Setenv("POINT_URL", tmpBasePointURL)
+	os.Setenv("POST_URL", tmpBasePostURL)
 }
 
 /*
@@ -139,4 +142,9 @@ func initUserTable() {
 	db := db.GetDB()
 	var u entity.User
 	db.Delete(&u)
+}
+
+func setTestURL() {
+	os.Setenv("POINT_URL", "http://user-mock-point:3000")
+	os.Setenv("POST_URL", "http://user-mock-post:3000")
 }
