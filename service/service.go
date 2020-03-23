@@ -7,6 +7,9 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"io/ioutil"
+	"strings"
+	"encoding/json"
 
 	"github.com/SeijiOmi/user/db"
 	"github.com/SeijiOmi/user/entity"
@@ -18,8 +21,8 @@ import (
 // Behavior ユーザサービスを提供するメソッド群
 type Behavior struct{}
 
-var demoOtherUser = entity.User{Name: "峰山　萌", Email: "mineyama@co.jp", Password: "password"}
-var demoLoginUser = entity.User{Name: "遠藤　外一", Email: "endo@co.jp", Password: "password"}
+var demoOtherUser = entity.User{Name: "", Email: "test@co.jp", Password: "password"}
+var demoLoginUser = entity.User{Name: "", Email: "test@co.jp", Password: "password"}
 
 const (
 	secret = "2FMd5FNSqS/nW2wWJy5S3ppjSHhUnLt8HuwBkTD6HqfPfBBDlykwLA=="
@@ -281,6 +284,10 @@ func (b Behavior) createUniqueDemoUser(user entity.User) (entity.Auth, error) {
 	}
 	uniqueDmoUser := user
 	maxID++
+	uniqueDmoUser.Name, err = getDemoUserName()
+	if err != nil {
+		return entity.Auth{}, err
+	}
 	uniqueDmoUser.Email = strconv.Itoa(maxID) + uniqueDmoUser.Email
 	_, err = b.CreateModel(uniqueDmoUser)
 	if err != nil {
@@ -371,7 +378,7 @@ func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth
 		}
 
 		if data.helperToken != "" {
-			err := setHelperPost(postID, loginUserAuth.Token)
+			err := setHelperPost(postID, data.helperToken)
 			if err != nil {
 				return err
 			}
@@ -469,4 +476,27 @@ func donePost(id int, token string) error {
 	}
 
 	return nil
+}
+
+func getDemoUserName() (string, error) {
+	res, err := http.Get("https://green.adam.ne.jp/roomazi/cgi-bin/randomname.cgi?n=1")
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	byteArray, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+	jsonpStr := string(byteArray)
+	jsonStr := jsonpStr[strings.Index(jsonpStr, "(")+1 : strings.Index(jsonpStr, ")")]
+
+	response := struct {
+		Err  int
+		Name [][]string
+	}{}
+	json.Unmarshal([]byte(jsonStr), &response)
+
+	return response.Name[0][0], nil
 }
