@@ -125,6 +125,18 @@ func Auth(c *gin.Context) {
 	}
 }
 
+// CreateDemo action: POST /demo/:id
+func CreateDemo(c *gin.Context) {
+	var b service.Behavior
+	demoUserAuth, err := b.CreateDemoData()
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		fmt.Println(err)
+	} else {
+		c.JSON(http.StatusCreated, demoUserAuth)
+	}
+}
+
 func bindJSON(c *gin.Context, data interface{}) error {
 	if err := c.BindJSON(data); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)

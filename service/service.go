@@ -7,6 +7,9 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"io/ioutil"
+	"strings"
+	"encoding/json"
 
 	"github.com/SeijiOmi/user/db"
 	"github.com/SeijiOmi/user/entity"
@@ -17,6 +20,9 @@ import (
 
 // Behavior ユーザサービスを提供するメソッド群
 type Behavior struct{}
+
+var demoOtherUser = entity.User{Name: "", Email: "test@co.jp", Password: "password"}
+var demoLoginUser = entity.User{Name: "", Email: "test@co.jp", Password: "password"}
 
 const (
 	secret = "2FMd5FNSqS/nW2wWJy5S3ppjSHhUnLt8HuwBkTD6HqfPfBBDlykwLA=="
@@ -249,4 +255,248 @@ func createPoint(point int, token string) error {
 	}
 
 	return nil
+}
+
+// CreateDemoData デモデータを作成して、デモユーザーのログイン情報を返却する
+func (b Behavior) CreateDemoData() (entity.Auth, error) {
+	otherUserAuth, err := b.createUniqueDemoUser(demoOtherUser)
+	if err != nil {
+		return entity.Auth{}, err
+	}
+
+	loginUserAuth, err := b.createUniqueDemoUser(demoLoginUser)
+	if err != nil {
+		return entity.Auth{}, err
+	}
+
+	err = createOtherServiceData(otherUserAuth, loginUserAuth)
+	if err != nil {
+		return entity.Auth{}, err
+	}
+
+	return loginUserAuth, nil
+}
+
+func (b Behavior) createUniqueDemoUser(user entity.User) (entity.Auth, error) {
+	maxID, err := getMaxUserID()
+	if err != nil {
+		return entity.Auth{}, err
+	}
+	uniqueDmoUser := user
+	maxID++
+	uniqueDmoUser.Name, err = getDemoUserName()
+	if err != nil {
+		return entity.Auth{}, err
+	}
+	uniqueDmoUser.Email = strconv.Itoa(maxID) + uniqueDmoUser.Email
+	_, err = b.CreateModel(uniqueDmoUser)
+	if err != nil {
+		return entity.Auth{}, err
+	}
+	uniqueDmoUserAuth, err := b.LoginAuth(uniqueDmoUser.Email, uniqueDmoUser.Password)
+	if err != nil {
+		return entity.Auth{}, err
+	}
+
+	return uniqueDmoUserAuth, nil
+}
+
+func getMaxUserID() (int, error) {
+	db := db.GetDB()
+	rows, err := db.Table("users").Select("max(id) as maxID").Rows()
+	defer rows.Close()
+	if err != nil {
+		return 0, err
+	}
+	var maxID int
+	for rows.Next() {
+		rows.Scan(&maxID)
+	}
+
+	return maxID, nil
+}
+
+func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth) error {
+	demoData := []struct {
+		body        string
+		point       int
+		token       string
+		helperToken string
+		doneToken   string
+	}{
+		{
+			"お風呂入っている間子供を見ててくれませんか？",
+			100,
+			otherUserAuth.Token,
+			loginUserAuth.Token,
+			"",
+		},
+		{
+			"模様替えの家具移動手伝って下さい！",
+			500,
+			otherUserAuth.Token,
+			loginUserAuth.Token,
+			otherUserAuth.Token,
+		},
+		{
+			"コストコ会員の人、一緒に連れてってくれませんか？",
+			100,
+			otherUserAuth.Token,
+			"",
+			"",
+		},
+		{
+			"背の高い人電球交換助けてくれませんか？",
+			100,
+			loginUserAuth.Token,
+			otherUserAuth.Token,
+			loginUserAuth.Token,
+		},
+		{
+			"テレビがつきません！！詳しい人いませんか？",
+			200,
+			loginUserAuth.Token,
+			otherUserAuth.Token,
+			"",
+		},
+		{
+			"ベットの組み立て手伝ってください！！",
+			100,
+			loginUserAuth.Token,
+			"",
+			"",
+		},
+	}
+
+	for _, data := range demoData {
+		postID, err := createPost(
+			data.body,
+			data.point,
+			data.token)
+		if err != nil {
+			return err
+		}
+
+		if data.helperToken != "" {
+			err := setHelperPost(postID, data.helperToken)
+			if err != nil {
+				return err
+			}
+		}
+
+		if data.doneToken != "" {
+			err := donePost(postID, data.doneToken)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func createPost(body string, point int, token string) (int, error) {
+	input := struct {
+		Body  string `json:"body"`
+		Point int    `json:"point"`
+		Token string `json:"token"`
+	}{
+		body,
+		point,
+		token,
+	}
+	response := struct {
+		ID int
+	}{}
+	error := struct {
+		Error string
+	}{}
+
+	baseURL := os.Getenv("POST_URL")
+	resp, err := napping.Post(baseURL+"/posts", &input, &response, &error)
+
+	if err != nil {
+		return 0, err
+	}
+
+	if resp.Status() == http.StatusBadRequest {
+		return 0, errors.New("token invalid")
+	}
+
+	return response.ID, nil
+}
+
+func setHelperPost(id int, token string) error {
+	input := struct {
+		ID    int    `json:"id"`
+		Token string `json:"token"`
+	}{
+		id,
+		token,
+	}
+	error := struct {
+		Error string
+	}{}
+
+	baseURL := os.Getenv("POST_URL")
+	resp, err := napping.Post(baseURL+"/helper", &input, nil, &error)
+
+	if err != nil {
+		return err
+	}
+
+	if resp.Status() == http.StatusBadRequest {
+		return errors.New("token invalid")
+	}
+
+	return nil
+}
+
+func donePost(id int, token string) error {
+	input := struct {
+		ID    int    `json:"id"`
+		Token string `json:"token"`
+	}{
+		id,
+		token,
+	}
+	error := struct {
+		Error string
+	}{}
+
+	baseURL := os.Getenv("POST_URL")
+	resp, err := napping.Post(baseURL+"/done", &input, nil, &error)
+
+	if err != nil {
+		return err
+	}
+
+	if resp.Status() == http.StatusBadRequest {
+		return errors.New("token invalid")
+	}
+
+	return nil
+}
+
+func getDemoUserName() (string, error) {
+	res, err := http.Get("https://green.adam.ne.jp/roomazi/cgi-bin/randomname.cgi?n=1")
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+
+	byteArray, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+	jsonpStr := string(byteArray)
+	jsonStr := jsonpStr[strings.Index(jsonpStr, "(")+1 : strings.Index(jsonpStr, ")")]
+
+	response := struct {
+		Err  int
+		Name [][]string
+	}{}
+	json.Unmarshal([]byte(jsonStr), &response)
+
+	return response.Name[0][0], nil
 }

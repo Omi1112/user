@@ -55,5 +55,10 @@ func router() *gin.Engine {
 		a.POST("", controller.Login)
 	}
 
+	d := r.Group("/demo")
+	{
+		d.POST("", controller.CreateDemo)
+	}
+
 	return r
 }

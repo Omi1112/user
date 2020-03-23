@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -19,6 +20,7 @@ import (
 var client = new(http.Client)
 var userDefault = entity.User{Name: "test", Email: "test@co.jp", Password: "password"}
 var tmpBasePointURL string
+var tmpBasePostURL string
 
 // テストを統括するテスト時には、これが実行されるイメージでいる。
 func TestMain(m *testing.M) {
@@ -33,6 +35,7 @@ func TestMain(m *testing.M) {
 // テスト実施前共通処理
 func setup() {
 	tmpBasePointURL = os.Getenv("POINT_URL")
+	tmpBasePostURL = os.Getenv("POST_URL")
 	setTestURL()
 	db.Init()
 	initUserTable()
@@ -42,6 +45,7 @@ func setup() {
 func teardown() {
 	db.Close()
 	os.Setenv("POINT_URL", tmpBasePointURL)
+	os.Setenv("POST_URL", tmpBasePostURL)
 }
 
 /*
@@ -240,6 +244,54 @@ func TestLoginAuthPasswordErr(t *testing.T) {
 	assert.Equal(t, entity.Auth{}, auth)
 }
 
+func TestGetMaxUserID(t *testing.T) {
+	initUserTable()
+
+	maxID, err := getMaxUserID()
+
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 0, maxID)
+}
+func TestCreateUniqueDemouser(t *testing.T) {
+	initUserTable()
+
+	var b Behavior
+	_, err := b.createUniqueDemoUser(userDefault)
+	assert.Equal(t, nil, err)
+	_, err = b.createUniqueDemoUser(userDefault)
+	assert.Equal(t, nil, err)
+
+	users, err := b.GetAll()
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 2, len(users))
+}
+func TestCreateDemoData(t *testing.T) {
+	initUserTable()
+
+	var b Behavior
+	demoAuth, err := b.CreateDemoData()
+	assert.Equal(t, nil, err)
+
+	_, err = b.TokenAuth(demoAuth.Token)
+	assert.Equal(t, nil, err)
+
+	users, err := b.GetAll()
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 2, len(users))
+
+	// 複数回デモユーザーを作成してもエラーとならない確認
+	demoAuth, err = b.CreateDemoData()
+	assert.Equal(t, nil, err)
+
+	_, err = b.TokenAuth(demoAuth.Token)
+	assert.Equal(t, nil, err)
+
+	users, err = b.GetAll()
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 4, len(users))
+	fmt.Println(users)
+}
+
 func createDefaultUser() entity.User {
 	db := db.GetDB()
 	user := userDefault
@@ -255,4 +307,5 @@ func initUserTable() {
 
 func setTestURL() {
 	os.Setenv("POINT_URL", "http://user-mock-point:3000")
+	os.Setenv("POST_URL", "http://user-mock-post:3000")
 }
