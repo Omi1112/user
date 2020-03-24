@@ -62,7 +62,7 @@ func (b Behavior) CreateModel(inputUser entity.User) (entity.User, error) {
 		return createUser, err
 	}
 	initPoint := 10000
-	err = createPoint(initPoint, token)
+	err = createPoint(initPoint, "登録ありがとうございます！初期ポイントを付与します。" , token)
 	if err != nil {
 		b.DeleteByID(strconv.Itoa(int(createUser.ID)))
 		return createUser, err
@@ -231,12 +231,14 @@ func perthToken(signedString string) (uint, error) {
 	return id, nil
 }
 
-func createPoint(point int, token string) error {
+func createPoint(point int, comment string, token string) error {
 	input := struct {
 		Number int    `json:"number"`
+		Comment  string `json:"comment"`
 		Token  string `json:"token"`
 	}{
 		point,
+		comment,
 		token,
 	}
 	error := struct {
