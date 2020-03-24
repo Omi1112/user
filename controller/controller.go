@@ -16,10 +16,10 @@ func Index(c *gin.Context) {
 	p, err := b.GetAll()
 
 	if err != nil {
-		c.AbortWithStatus(404)
+		c.AbortWithStatus(http.StatusBadRequest)
 		fmt.Println(err)
 	} else {
-		c.JSON(200, p)
+		c.JSON(http.StatusOK, p)
 	}
 }
 
@@ -39,10 +39,10 @@ func Create(c *gin.Context) {
 	createdUser, err := b.CreateModel(inputUser)
 
 	if err != nil {
-		c.AbortWithStatus(400)
+		c.AbortWithStatus(http.StatusBadRequest)
 		fmt.Println(err)
 	} else {
-		c.JSON(201, createdUser)
+		c.JSON(http.StatusCreated, createdUser)
 	}
 }
 
@@ -53,10 +53,10 @@ func Show(c *gin.Context) {
 	p, err := b.GetByID(id)
 
 	if err != nil {
-		c.AbortWithStatus(404)
+		c.AbortWithStatus(http.StatusNotFound)
 		fmt.Println(err)
 	} else {
-		c.JSON(200, p)
+		c.JSON(http.StatusOK, p)
 	}
 }
 
@@ -72,10 +72,10 @@ func Update(c *gin.Context) {
 	p, err := b.UpdateByID(id, inputUser)
 
 	if err != nil {
-		c.AbortWithStatus(400)
+		c.AbortWithStatus(http.StatusBadRequest)
 		fmt.Println(err)
 	} else {
-		c.JSON(200, p)
+		c.JSON(http.StatusCreated, p)
 	}
 }
 
@@ -85,10 +85,10 @@ func Delete(c *gin.Context) {
 	var b service.Behavior
 
 	if err := b.DeleteByID(id); err != nil {
-		c.AbortWithStatus(403)
+		c.AbortWithStatus(http.StatusBadRequest)
 		fmt.Println(err)
 	} else {
-		c.JSON(204, gin.H{"id #" + id: "deleted"})
+		c.JSON(http.StatusCreated, gin.H{"id #" + id: "deleted"})
 	}
 }
 
@@ -105,7 +105,7 @@ func Login(c *gin.Context) {
 	var b service.Behavior
 	auth, err := b.LoginAuth(inputUser.Email, inputUser.Password)
 	if err != nil {
-		c.AbortWithStatus(403)
+		c.AbortWithStatus(http.StatusBadRequest)
 		fmt.Println(err)
 	} else {
 		c.JSON(http.StatusCreated, auth)
