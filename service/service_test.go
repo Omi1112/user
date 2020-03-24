@@ -158,13 +158,13 @@ func TestDeleteByIDNotExists(t *testing.T) {
 }
 
 func TestCreatePoint(t *testing.T) {
-	err := createPoint(100, "testToken")
+	err := createPoint(100,"testComment" , "testToken")
 	assert.Equal(t, nil, err)
 }
 
 func TestCreatePointNotFoundErr(t *testing.T) {
 	os.Setenv("POINT_URL", "http://unknown")
-	err := createPoint(100, "testToken")
+	err := createPoint(100,"testComment" , "testToken")
 	assert.NotEqual(t, nil, err)
 	setTestURL()
 }
