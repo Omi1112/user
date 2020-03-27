@@ -13,26 +13,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-/*
-	テストの前準備
-*/
-
 var client = new(http.Client)
 var userDefault = entity.User{Name: "test", Email: "test@co.jp", Password: "password"}
 var tmpBasePointURL string
 var tmpBasePostURL string
 
-// テストを統括するテスト時には、これが実行されるイメージでいる。
 func TestMain(m *testing.M) {
-	// テスト実施前の共通処理（自作関数）
 	setup()
 	ret := m.Run()
-	// テスト実施後の共通処理（自作関数）
 	teardown()
 	os.Exit(ret)
 }
 
-// テスト実施前共通処理
 func setup() {
 	tmpBasePointURL = os.Getenv("POINT_URL")
 	tmpBasePostURL = os.Getenv("POST_URL")
@@ -41,16 +33,11 @@ func setup() {
 	initUserTable()
 }
 
-// テスト実施後共通処理
 func teardown() {
 	db.Close()
 	os.Setenv("POINT_URL", tmpBasePointURL)
 	os.Setenv("POST_URL", tmpBasePostURL)
 }
-
-/*
-	ここからが個別のテスト実装
-*/
 
 func TestGetAll(t *testing.T) {
 	initUserTable()

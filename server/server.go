@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Init is initialize server
+// Init サーバー起動
 func Init() {
 	r := router()
 	r.Run(":8080")

@@ -1,6 +1,6 @@
 package entity
 
-// User is user models property
+// User ユーザー情報
 type User struct {
 	ID       uint   `json:"id"`
 	Email    string `json:"email"    binding:"required,email"`

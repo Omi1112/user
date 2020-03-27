@@ -194,7 +194,7 @@ func createToken(u entity.User) (string, error) {
 	return tokenString, nil
 }
 
-// perthToken は jwt トークンからidを取得する。
+// perthToken jwt トークンからidを取得する。
 func perthToken(signedString string) (uint, error) {
 	var id uint
 	token, err := jwt.Parse(signedString, func(token *jwt.Token) (interface{}, error) {
