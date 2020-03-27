@@ -2,18 +2,8 @@ version: '3'
 services:
   user:
     tty: true
-    image: zemisemi/gin-template
+    build: ./docker/api
     working_dir: /go/src/github.com/SeijiOmi/user
-    # entrypoint:
-    #   - dockerize
-    #   - -timeout
-    #   - 60s
-    #   - -wait
-    #   - tcp://mysql:3306
-    # command: gin -i --all run main.go
-    # build:
-    #   context: .
-    #   dockerfile: ./docker/api/Dockerfile
     ports:
       - "8080:8080"
     volumes:
@@ -39,7 +29,6 @@ services:
       - "3306:3306"
     volumes:
       - ./docker/db/conf.d/my.cnf:/etc/mysql/conf.d/my.cnf
-      # - ./logs:/var/log/mysql
     networks:
       - my_network
 
