@@ -3,9 +3,8 @@ kind: Service
 metadata:
   name: user
 spec:
-  type: LoadBalancer
   selector:
-    app: user
+    back: user
   ports:
   - port: 80
     targetPort: 8080

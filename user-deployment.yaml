@@ -1,19 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  # namespace: test
-  name: user
+  name: user-deployment
   labels:
-    app: user
+    app: ap
+    back: user
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user
+      app: ap
+      back: user
   template:
     metadata:
       labels:
-        app: user
+        app: ap
+        back: user
     spec:
       containers:
       - name: user
@@ -24,7 +26,6 @@ spec:
           - sh
           - -c
           - go run main.go
-        # tty: true
         env:
           - name: DB_USER
             value: "root"
@@ -34,5 +35,7 @@ spec:
             value: "sample"
           - name: DB_ADDRESS
             value: "user-db:3306"
+          - name: POST_URL
+            value: "http://post"
           - name: POINT_URL
             value: "http://point"

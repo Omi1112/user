@@ -1,22 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-db
+  name: user-db-deployment
   labels:
-    app: user-db
+    back: user-db
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-db
+      back: user-db
   template:
     metadata:
       labels:
-        app: user-db
+        back: user-db
     spec:
-      hostname: user-db
       containers:
-      - name: mysql
+      - name: user-db
         image: mysql:8.0
         ports:
         - containerPort: 3306
