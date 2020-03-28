@@ -4,7 +4,7 @@ metadata:
   name: user-db
 spec:
   selector:
-    app: user-db
+    back: user-db
   ports:
   - port: 3306
     targetPort: 3306
