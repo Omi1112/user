@@ -10,4 +10,4 @@ build:
 deploy:
   kubectl:
     manifests:
-      - user-*
+      - user-deployment.yaml
