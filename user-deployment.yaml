@@ -34,7 +34,7 @@ spec:
           - name: DB_NAME
             value: "sample"
           - name: DB_ADDRESS
-            value: "user-db:3306"
+            value: "sample3.cwkt7knnlqxh.ap-northeast-1.rds.amazonaws.com:3306"
           - name: POST_URL
             value: "http://post"
           - name: POINT_URL
