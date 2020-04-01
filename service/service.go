@@ -1,15 +1,15 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"io/ioutil"
 	"strings"
-	"encoding/json"
 
 	"github.com/SeijiOmi/user/db"
 	"github.com/SeijiOmi/user/entity"
@@ -62,7 +62,7 @@ func (b Behavior) CreateModel(inputUser entity.User) (entity.User, error) {
 		return createUser, err
 	}
 	initPoint := 10000
-	err = createPoint(initPoint, "登録ありがとうございます！初期ポイントを付与します。" , token)
+	err = createPoint(initPoint, "登録ありがとうございます！初期ポイントを付与します。", token)
 	if err != nil {
 		b.DeleteByID(strconv.Itoa(int(createUser.ID)))
 		return createUser, err
@@ -233,9 +233,9 @@ func perthToken(signedString string) (uint, error) {
 
 func createPoint(point int, comment string, token string) error {
 	input := struct {
-		Number int    `json:"number"`
-		Comment  string `json:"comment"`
-		Token  string `json:"token"`
+		Number  int    `json:"number"`
+		Comment string `json:"comment"`
+		Token   string `json:"token"`
 	}{
 		point,
 		comment,
@@ -408,7 +408,9 @@ func createPost(body string, point int, token string) (int, error) {
 		token,
 	}
 	response := struct {
-		ID int
+		Post struct {
+			ID int
+		}
 	}{}
 	error := struct {
 		Error string
@@ -424,8 +426,9 @@ func createPost(body string, point int, token string) (int, error) {
 	if resp.Status() == http.StatusBadRequest {
 		return 0, errors.New("token invalid")
 	}
+	fmt.Println(response.Post.ID)
 
-	return response.ID, nil
+	return response.Post.ID, nil
 }
 
 func setHelperPost(id int, token string) error {
