@@ -1,15 +1,15 @@
 package service
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"io/ioutil"
 	"strings"
-	"encoding/json"
 
 	"github.com/SeijiOmi/user/db"
 	"github.com/SeijiOmi/user/entity"
@@ -62,7 +62,7 @@ func (b Behavior) CreateModel(inputUser entity.User) (entity.User, error) {
 		return createUser, err
 	}
 	initPoint := 10000
-	err = createPoint(initPoint, "登録ありがとうございます！初期ポイントを付与します。" , token)
+	err = createPoint(initPoint, "登録ありがとうございます！初期ポイントを付与します。", token)
 	if err != nil {
 		b.DeleteByID(strconv.Itoa(int(createUser.ID)))
 		return createUser, err
@@ -233,9 +233,9 @@ func perthToken(signedString string) (uint, error) {
 
 func createPoint(point int, comment string, token string) error {
 	input := struct {
-		Number int    `json:"number"`
-		Comment  string `json:"comment"`
-		Token  string `json:"token"`
+		Number  int    `json:"number"`
+		Comment string `json:"comment"`
+		Token   string `json:"token"`
 	}{
 		point,
 		comment,
@@ -318,10 +318,16 @@ func getMaxUserID() (int, error) {
 	return maxID, nil
 }
 
+type tag struct {
+	ID   int
+	Body string
+}
+
 func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth) error {
 	demoData := []struct {
 		body        string
 		point       int
+		tags        []tag
 		token       string
 		helperToken string
 		doneToken   string
@@ -329,6 +335,10 @@ func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth
 		{
 			"お風呂入っている間子供を見ててくれませんか？",
 			100,
+			[]tag{
+				tag{ID: 0, Body: "子供"},
+				tag{ID: 0, Body: "育児"},
+			},
 			otherUserAuth.Token,
 			loginUserAuth.Token,
 			"",
@@ -336,6 +346,10 @@ func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth
 		{
 			"模様替えの家具移動手伝って下さい！",
 			500,
+			[]tag{
+				tag{ID: 0, Body: "模様替え"},
+				tag{ID: 0, Body: "家具"},
+			},
 			otherUserAuth.Token,
 			loginUserAuth.Token,
 			otherUserAuth.Token,
@@ -343,6 +357,10 @@ func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth
 		{
 			"コストコ会員の人、一緒に連れてってくれませんか？",
 			100,
+			[]tag{
+				tag{ID: 0, Body: "お買い物"},
+				tag{ID: 0, Body: "コストコ"},
+			},
 			otherUserAuth.Token,
 			"",
 			"",
@@ -350,6 +368,10 @@ func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth
 		{
 			"背の高い人電球交換助けてくれませんか？",
 			100,
+			[]tag{
+				tag{ID: 0, Body: "電球交換"},
+				tag{ID: 0, Body: "背の高い人"},
+			},
 			loginUserAuth.Token,
 			otherUserAuth.Token,
 			loginUserAuth.Token,
@@ -357,6 +379,10 @@ func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth
 		{
 			"テレビがつきません！！詳しい人いませんか？",
 			200,
+			[]tag{
+				tag{ID: 0, Body: "テレビ"},
+				tag{ID: 0, Body: "家電"},
+			},
 			loginUserAuth.Token,
 			otherUserAuth.Token,
 			"",
@@ -364,6 +390,10 @@ func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth
 		{
 			"ベットの組み立て手伝ってください！！",
 			100,
+			[]tag{
+				tag{ID: 0, Body: "ベッド"},
+				tag{ID: 0, Body: "家具"},
+			},
 			loginUserAuth.Token,
 			"",
 			"",
@@ -374,7 +404,8 @@ func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth
 		postID, err := createPost(
 			data.body,
 			data.point,
-			data.token)
+			data.token,
+			data.tags)
 		if err != nil {
 			return err
 		}
@@ -397,18 +428,22 @@ func createOtherServiceData(otherUserAuth entity.Auth, loginUserAuth entity.Auth
 	return nil
 }
 
-func createPost(body string, point int, token string) (int, error) {
+func createPost(body string, point int, token string, tags []tag) (int, error) {
 	input := struct {
 		Body  string `json:"body"`
 		Point int    `json:"point"`
+		Tags  []tag  `json:"tags"`
 		Token string `json:"token"`
 	}{
 		body,
 		point,
+		tags,
 		token,
 	}
 	response := struct {
-		ID int
+		Post struct {
+			ID int
+		}
 	}{}
 	error := struct {
 		Error string
@@ -424,8 +459,9 @@ func createPost(body string, point int, token string) (int, error) {
 	if resp.Status() == http.StatusBadRequest {
 		return 0, errors.New("token invalid")
 	}
+	fmt.Println(response.Post.ID)
 
-	return response.ID, nil
+	return response.Post.ID, nil
 }
 
 func setHelperPost(id int, token string) error {
